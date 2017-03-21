@@ -1,11 +1,17 @@
 package com.lsw.demo.utils;
 
+import android.provider.MediaStore;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
 import okhttp3.Callback;
 import okhttp3.FormBody;
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -149,6 +155,7 @@ public class OkHttpUtils {
     }
 
     /**
+     * post网络访问，提交键值对
      * @param url
      * @param map
      * @return
@@ -158,5 +165,59 @@ public class OkHttpUtils {
         RequestBody requestBody = buildRequestBody(map);
         return postRequestBody(url,requestBody);
     }
+
+    /**
+     * post异步网络请求
+     * @param url
+     * @param requestBody
+     * @param callback
+     */
+    private static void postRequestBodyAsync(String url,RequestBody requestBody,Callback callback){
+        Request request = buildPostRequest(url,requestBody);
+        okHttpClient.newCall(request).enqueue(callback);
+    }
+
+    /**
+     * post异步请求，提交键值对
+     * @param url
+     * @param map
+     * @param callback
+     */
+    public static void postKeyValuePairAsync(String url,Map<String,String> map,Callback callback){
+        RequestBody requestBody = buildRequestBody(map);
+        postRequestBodyAsync(url,requestBody,callback);
+    }
+
+/*    *//**
+     * post同步上传文件及其他表单
+     * @param url
+     * @param map
+     * @param files
+     * @param fileName
+     * @return
+     *//*
+    public static String postUpLoadFiles(String url, Map<String,String> map, File[] files, String[] fileName){
+        RequestBody requestBody = ;
+        return postRequestBody(url,requestBody);
+    }
+
+    private static RequestBody buildRequestBody(String url, Map<String,String> map, File[] files, String[] fileFieldName){
+        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+        //第一部分提交：文件控件以外的其他input的数据
+        if((map!=null)&&(!map.isEmpty())){
+            for(Map.Entry<String,String> entry:map.entrySet()){
+                builder.addPart(Headers.of("Content-Disposition","form-data;name=\""+entry.getKey()+"\""),RequestBody.create(null,entry.getValue()));
+            }
+        }
+
+        //第二部分：上传文件控件的数据
+        if(files != null){
+            for(int i=0;i<files.length;i++){
+                File file = files[i];
+                String fileName = file.getName();
+                builder.addPart(Headers.of("Content-Disposition","form-data;name=\""+fileFieldName[i]+"\";filename=\""+fileName+ResponseBody.create(MediaType.parse(),file)
+            }
+        }
+    }*/
 
 }
