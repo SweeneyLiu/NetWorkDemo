@@ -3,6 +3,7 @@ package com.lsw.demo;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -12,8 +13,13 @@ import com.lsw.demo.Api.ApiSubmitLogContent;
 import com.lsw.demo.Bean.LogContentBean;
 import com.lsw.demo.Bean.LogPost;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+import java.util.TimeZone;
 
+import okhttp3.Headers;
 import okhttp3.Response;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -24,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private static final String HOST_SNS = "http://tracker.sns.iqiyi.com/";        // 反馈
+    private static final String TAG = "MainActivity";
+    private static long deltaBetweenServerAndClientTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +112,25 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<LogContentBean>() {
             @Override
             public void onResponse(Call<LogContentBean> call, retrofit2.Response<LogContentBean> response) {
+                if (response != null) {
+                    final Headers headers = response.headers();
+                    if (headers != null) {
+                        final String strServerDate = headers.get("Date");
+                        try {
+                            if ((strServerDate != null) && !strServerDate.equals("")) {
+                                final SimpleDateFormat sdf = new SimpleDateFormat(
+                                        "EEE, d MMM yyyy HH:mm:ss z", Locale.ENGLISH);
+                                TimeZone.setDefault(TimeZone.getTimeZone("GMT+8"));
+                                Date serverDateUAT = sdf.parse(strServerDate);
+                                deltaBetweenServerAndClientTime = serverDateUAT.getTime() + 8 * 60 * 60 * 1000 - System.currentTimeMillis();
+                                Log.i(TAG, "onResponse: deltaBetweenServerAndClientTime = " + deltaBetweenServerAndClientTime);
+                            }
+                        } catch (java.text.ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                }
                 Toast.makeText(MainActivity.this,"提交成功",Toast.LENGTH_LONG).show();
             }
 
@@ -114,4 +141,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public static Date getServerTime() {
+        return new Date(System.currentTimeMillis()
+                + deltaBetweenServerAndClientTime);
+    }
 }
