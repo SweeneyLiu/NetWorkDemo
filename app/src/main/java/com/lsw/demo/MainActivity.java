@@ -12,6 +12,7 @@ import com.lsw.demo.Api.ApiPostLog;
 import com.lsw.demo.Api.ApiSubmitLogContent;
 import com.lsw.demo.Bean.LogContentBean;
 import com.lsw.demo.Bean.LogPost;
+import com.lsw.demo.utils.GzipUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -112,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<LogContentBean>() {
             @Override
             public void onResponse(Call<LogContentBean> call, retrofit2.Response<LogContentBean> response) {
-                if (response != null) {
+                //校正时间
+                /*if (response != null) {
                     final Headers headers = response.headers();
                     if (headers != null) {
                         final String strServerDate = headers.get("Date");
@@ -130,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                }
+                }*/
                 Toast.makeText(MainActivity.this,"提交成功",Toast.LENGTH_LONG).show();
             }
 
